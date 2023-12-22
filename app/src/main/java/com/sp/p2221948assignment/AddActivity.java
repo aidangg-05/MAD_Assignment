@@ -1,61 +1,97 @@
-// AddActivity.java
 package com.sp.p2221948assignment;
 
-// AddActivity.java
-import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.io.ByteArrayOutputStream;
-
 public class AddActivity extends AppCompatActivity {
 
-    // ... (your existing code)
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
+    private static final int REQUEST_IMAGE_PICKER = 2;
 
-    private void saveDataToDatabase(String name, String latitude, String longitude, String description, Bitmap imageBitmap) {
-        DatabaseHelper dbHelper = new DatabaseHelper(this);
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+    private ImageView imageView;
+    private Button addImageButton;
 
-        ContentValues values = new ContentValues();
-        values.put(DatabaseHelper.COLUMN_NAME, name);
-        values.put(DatabaseHelper.COLUMN_LATITUDE, latitude);
-        values.put(DatabaseHelper.COLUMN_LONGITUDE, longitude);
-        values.put(DatabaseHelper.COLUMN_DESCRIPTION, description);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_add);
 
-        if (imageBitmap != null) {
-            // Convert Bitmap to byte array for storage
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-            byte[] byteArray = stream.toByteArray();
-            values.put(DatabaseHelper.COLUMN_IMAGE, byteArray);
-        }
+        imageView = findViewById(R.id.imageView);
+        addImageButton = findViewById(R.id.addImageButton);
 
-        long newRowId = db.insert(DatabaseHelper.TABLE_NAME, null, values);
-
-        if (newRowId != -1) {
-            Toast.makeText(this, "Data saved successfully", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "Error saving data", Toast.LENGTH_SHORT).show();
-        }
-
-        db.close();
+        addImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showImagePickerOptions();
+            }
+        });
     }
 
-    // ... (your existing code)
+    private void showImagePickerOptions() {
+        final CharSequence[] options = {"Take Photo", "Choose from Gallery", "Cancel"};
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Add Image");
+        builder.setItems(options, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int item) {
+                if (options[item].equals("Take Photo")) {
+                    openCamera();
+                } else if (options[item].equals("Choose from Gallery")) {
+                    openGallery();
+                } else if (options[item].equals("Cancel")) {
+                    dialogInterface.dismiss();
+                }
+            }
+        });
+        builder.show();
+    }
+
+    private void openCamera() {
+        // Intent to open the camera for capturing an image
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        }
+    }
+
+    private void openGallery() {
+        // Intent to open the image picker
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        intent.setType("image/*");
+        startActivityForResult(intent, REQUEST_IMAGE_PICKER);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_IMAGE_PICKER) {
+                // Handle the result from the image picker
+                if (data != null && data.getData() != null) {
+                    // Get the selected image URI and display it in the ImageView
+                    imageView.setImageURI(data.getData());
+                    imageView.setVisibility(View.VISIBLE);
+                }
+            } else if (requestCode == REQUEST_IMAGE_CAPTURE) {
+                // Handle the result from the camera (if implemented)
+                if (data != null && data.getExtras() != null) {
+                    Bitmap imageBitmap = (Bitmap) data.getExtras().get("data");
+                    imageView.setImageBitmap(imageBitmap);
+                    imageView.setVisibility(View.VISIBLE);
+                }
+            }
+        }
+    }
 }
-
-
-
-

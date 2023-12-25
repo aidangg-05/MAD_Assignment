@@ -8,10 +8,17 @@ import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.EditText;
+import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import android.database.sqlite.SQLiteDatabase;
+import android.content.ContentValues;
+
+// Import statements...
 
 public class AddActivity extends AppCompatActivity {
 
@@ -20,6 +27,8 @@ public class AddActivity extends AppCompatActivity {
 
     private ImageView imageView;
     private Button addImageButton;
+    private EditText nameEditText, latitudeEditText, longitudeEditText, descriptionEditText;
+    private String imagePath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,11 +37,23 @@ public class AddActivity extends AppCompatActivity {
 
         imageView = findViewById(R.id.imageView);
         addImageButton = findViewById(R.id.addImageButton);
+        nameEditText = findViewById(R.id.enter_name);
+        latitudeEditText = findViewById(R.id.enter_latitude);
+        longitudeEditText = findViewById(R.id.enter_longitude);
+        descriptionEditText = findViewById(R.id.editTextText6);
 
         addImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 showImagePickerOptions();
+            }
+        });
+
+        Button doneButton = findViewById(R.id.done);
+        doneButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                saveDataToDatabase();
             }
         });
     }
@@ -83,6 +104,9 @@ public class AddActivity extends AppCompatActivity {
                     // Get the selected image URI and display it in the ImageView
                     imageView.setImageURI(data.getData());
                     imageView.setVisibility(View.VISIBLE);
+
+                    // Set the imagePath
+                    imagePath = data.getData().toString();
                 }
             } else if (requestCode == REQUEST_IMAGE_CAPTURE) {
                 // Handle the result from the camera (if implemented)
@@ -90,8 +114,56 @@ public class AddActivity extends AppCompatActivity {
                     Bitmap imageBitmap = (Bitmap) data.getExtras().get("data");
                     imageView.setImageBitmap(imageBitmap);
                     imageView.setVisibility(View.VISIBLE);
+
+                    // Set the imagePath (You need to implement a way to get a file path from the captured image)
+                    // For example, you can save the image to a file and get its path
+                    // imagePath = saveImageToFile(imageBitmap);
                 }
             }
         }
     }
+
+
+
+    private void saveDataToDatabase() {
+        String name = nameEditText.getText().toString();
+        String latitude = latitudeEditText.getText().toString();
+        String longitude = longitudeEditText.getText().toString();
+        String description = descriptionEditText.getText().toString();
+
+        // Save the data to the database
+        DatabaseHelper dbHelper = new DatabaseHelper(this);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(DatabaseHelper.COLUMN_NAME, name);
+        values.put(DatabaseHelper.COLUMN_LATITUDE, latitude);
+        values.put(DatabaseHelper.COLUMN_LONGITUDE, longitude);
+        values.put(DatabaseHelper.COLUMN_DESCRIPTION, description);
+        values.put(DatabaseHelper.COLUMN_IMAGE_PATH, imagePath); // Assuming imagePath is set when an image is selected
+
+        long newRowId = db.insert(DatabaseHelper.TABLE_NAME, null, values);
+
+        // Close the database
+        db.close();
+
+        if (newRowId != -1) {
+            // Data was successfully inserted
+            String successMessage = "Data saved to the database with ID: " + newRowId;
+            Log.d("Database", successMessage);
+            Toast.makeText(this, successMessage, Toast.LENGTH_SHORT).show();
+
+            // Start MainActivity
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+
+            // Optionally, you can finish the current activity if you don't want it to remain in the back stack
+            finish();
+        } else {
+            // Data insertion failed
+            Log.e("Database", "Error saving data to the database");
+            Toast.makeText(this, "Error saving data to the database", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 }

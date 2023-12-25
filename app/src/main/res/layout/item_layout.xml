@@ -1,24 +1,21 @@
-<?xml version="1.0" encoding="utf-8"?>
+<!-- item_layout.xml -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="16dp">
 
     <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:layout_alignParentStart="true"
-        android:layout_centerVertical="true"
-        android:layout_marginEnd="16dp"
-        android:scaleType="centerCrop" />
+        android:id="@+id/itemImageView"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:scaleType="centerCrop"
+        android:visibility="invisible" />
 
     <TextView
-        android:id="@+id/nameTextView"
-        android:layout_width="wrap_content"
+        android:id="@+id/itemNameTextView"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_toEndOf="@+id/imageView"
+        android:layout_marginStart="16dp"
+        android:layout_toEndOf="@id/itemImageView"
         android:textSize="18sp" />
-
 </RelativeLayout>

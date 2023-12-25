@@ -58,4 +58,3 @@ public class MyDataModel {
         this.imagePath = imagePath;
     }
 }
-

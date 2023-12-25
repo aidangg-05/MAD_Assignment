@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import java.util.ArrayList;
 import java.util.List;
 import android.content.Intent;
+import android.util.Log;
 
 import com.sp.p2221948assignment.R;
 
@@ -72,6 +73,8 @@ public class MainActivity extends AppCompatActivity {
                         String description = cursor.getString(descriptionColumnIndex);
                         String imagePath = cursor.getString(imagePathColumnIndex);
 
+                        Log.d("MainActivity", "Image Path from database: " + imagePath);
+
                         MyDataModel data = new MyDataModel(name, latitude, longitude, description, imagePath);
                         dataList.add(data);
                     } else {
@@ -120,4 +123,3 @@ public class MainActivity extends AppCompatActivity {
     }
 
 }
-

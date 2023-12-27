@@ -16,7 +16,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_LONGITUDE = "longitude";
     public static final String COLUMN_DESCRIPTION = "description";
     public static final String COLUMN_IMAGE_PATH = "image_path";
-
+    public static final String COLUMN_IMAGE = "image";
     private static final String SQL_CREATE_TABLE =
             "CREATE TABLE " + TABLE_NAME + " (" +
                     "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -24,7 +24,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     COLUMN_LATITUDE + " REAL, " +
                     COLUMN_LONGITUDE + " REAL, " +
                     COLUMN_DESCRIPTION + " TEXT, " +
-                    COLUMN_IMAGE_PATH + " TEXT);";
+                    COLUMN_IMAGE_PATH + " TEXT, " +
+                    COLUMN_IMAGE + " BLOB);";
+
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -37,6 +39,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Handle database upgrades if needed
+        if (oldVersion < 2) {
+            // Perform database schema changes for version 2
+            db.execSQL("ALTER TABLE " + TABLE_NAME + " ADD COLUMN new_column_name TEXT;");
+            // Add more upgrade steps if needed
+        }
+        // You can add additional upgrade steps for other versions here
     }
+
+
 }

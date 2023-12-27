@@ -11,12 +11,6 @@ import android.widget.ImageView;
 import android.widget.EditText;
 import android.util.Log;
 import android.widget.Toast;
-import android.net.Uri;
-import android.database.Cursor;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -107,31 +101,27 @@ public class AddActivity extends AppCompatActivity {
             if (requestCode == REQUEST_IMAGE_PICKER) {
                 // Handle the result from the image picker
                 if (data != null && data.getData() != null) {
-                    // Get the selected image URI
-                    Uri imageUri = data.getData();
-
-                    // Convert URI to file path
-                    imagePath = getRealPathFromUri(imageUri);
-
-                    // Display the image in the ImageView
-                    imageView.setImageURI(imageUri);
+                    // Get the selected image URI and display it in the ImageView
+                    imageView.setImageURI(data.getData());
                     imageView.setVisibility(View.VISIBLE);
+
+                    // Set the imagePath
+                    imagePath = data.getData().toString();
                 }
             } else if (requestCode == REQUEST_IMAGE_CAPTURE) {
-                // Handle the result from the camera
+                // Handle the result from the camera (if implemented)
                 if (data != null && data.getExtras() != null) {
                     Bitmap imageBitmap = (Bitmap) data.getExtras().get("data");
                     imageView.setImageBitmap(imageBitmap);
                     imageView.setVisibility(View.VISIBLE);
 
-                    // Save the image to a file and get its path
-                    imagePath = saveImageToFile(imageBitmap);
+                    // Set the imagePath (You need to implement a way to get a file path from the captured image)
+                    // For example, you can save the image to a file and get its path
+                    // imagePath = saveImageToFile(imageBitmap);
                 }
             }
         }
     }
-
-
 
 
 
@@ -140,8 +130,6 @@ public class AddActivity extends AppCompatActivity {
         String latitude = latitudeEditText.getText().toString();
         String longitude = longitudeEditText.getText().toString();
         String description = descriptionEditText.getText().toString();
-
-        Log.d("AddActivity", "Image Path before saving to DB: " + imagePath);
 
         // Save the data to the database
         DatabaseHelper dbHelper = new DatabaseHelper(this);
@@ -177,40 +165,5 @@ public class AddActivity extends AppCompatActivity {
             Toast.makeText(this, "Error saving data to the database", Toast.LENGTH_SHORT).show();
         }
     }
-
-    private String getRealPathFromUri(Uri uri) {
-        String[] projection = {MediaStore.Images.Media.DATA};
-        Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
-
-        if (cursor != null && cursor.moveToFirst()) {
-            int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-            String filePath = cursor.getString(columnIndex);
-            cursor.close();
-            return filePath;
-        }
-
-        // If the cursor is null or doesn't contain data, use the Uri's path
-        return uri.getPath();
-    }
-
-    private String saveImageToFile(Bitmap bitmap) {
-        // For simplicity, I'll provide a placeholder implementation
-        File file = new File(getExternalFilesDir(null), "image_file.jpg");
-
-        try (FileOutputStream out = new FileOutputStream(file)) {
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-            return file.getAbsolutePath();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            // Handle the FileNotFoundException appropriately (log it, show a message, etc.)
-            return null;  // or throw a custom exception if needed
-        } catch (IOException e) {
-            e.printStackTrace();
-            // Handle the IOException appropriately (log it, show a message, etc.)
-            return null;  // or throw a custom exception if needed
-        }
-    }
-
-
 
 }

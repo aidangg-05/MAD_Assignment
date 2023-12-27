@@ -11,7 +11,6 @@ import android.view.MenuItem;
 import java.util.ArrayList;
 import java.util.List;
 import android.content.Intent;
-import android.util.Log;
 
 import com.sp.p2221948assignment.R;
 
@@ -35,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
         // Initialize RecyclerView and data list
         recyclerView = findViewById(R.id.recyclerView);
         dataList = new ArrayList<>();
-        adapter = new MyAdapter(dataList, this);
+        adapter = new MyAdapter(dataList);
 
         // Set the adapter to the RecyclerView
         recyclerView.setAdapter(adapter);
@@ -72,8 +71,6 @@ public class MainActivity extends AppCompatActivity {
                         double longitude = cursor.getDouble(longitudeColumnIndex);
                         String description = cursor.getString(descriptionColumnIndex);
                         String imagePath = cursor.getString(imagePathColumnIndex);
-
-                        Log.d("MainActivity", "Image Path from database: " + imagePath);
 
                         MyDataModel data = new MyDataModel(name, latitude, longitude, description, imagePath);
                         dataList.add(data);
